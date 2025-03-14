@@ -11,18 +11,14 @@ app.use(express.static('public'));
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
     
-    socket.on('offer', (data) => {
-        socket.broadcast.emit('offer', data);
+    socket.on('call-user', (data) => {
+        io.to(data.userToCall).emit('receive-call', { signal: data.signal, from: data.from });
     });
     
-    socket.on('answer', (data) => {
-        socket.broadcast.emit('answer', data);
+    socket.on('answer-call', (data) => {
+        io.to(data.to).emit('call-answered', data.signal);
     });
     
-    socket.on('candidate', (data) => {
-        socket.broadcast.emit('candidate', data);
-    });
-
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
     });
@@ -31,4 +27,3 @@ io.on('connection', (socket) => {
 server.listen(3000, () => {
     console.log('Server running on http://localhost:3000');
 });
-
